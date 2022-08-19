@@ -27,6 +27,9 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    restart: on-failure
+    networks:
+      - ass_net
   was_gateway:
     image: uoul/ass-core-was_gateway:latest
     container_name: 'was_gateway'
@@ -36,6 +39,9 @@ services:
       - rabbitmq
     environment:
       - RABBITMQ_HOST=rabbitmq
+    restart: on-failure
+    networks:
+      - ass_net
   sms77notifier:
     image: uoul/ass-core-sms77notifier:latest
     container_name: 'sms77notifier'
@@ -50,6 +56,12 @@ services:
       - SMS77NOTIFIER_SENDER=<name>
       - SMS77NOTIFIER_SMSGROUP_FULL_INFO=<full_info_group_name>
       - SMS77NOTIFIER_SMSGROUP_MIN_INFO=<min_info_group_name>
+    restart: on-failure
+    networks:
+      - ass_net
+networks:
+  ass_net:
+    driver: bridge
 ```
 
 ## How to setup?
