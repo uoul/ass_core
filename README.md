@@ -40,6 +40,8 @@ services:
     environment:
       - RABBITMQ_HOST=rabbitmq
     restart: on-failure
+    volumes:
+      - <host-state-dir>:/media/state
     networks:
       - ass_net
   sms77notifier:
@@ -67,10 +69,11 @@ networks:
 ## How to setup?
 1. save Docker-compose file to your machine
 2. Do necessary configuration --> minimal is
-   1. <sms77_api_key> = generated api key from sms77 portal
-   2. <name> = sender name, that should be seen as sender on mobile
-   3. <full_info_group_name> = in your sms77 phonebook, the group name, that should get the full information
-   4. <min_info_group_name> = in your sms77 phonebook, the group name, that should only get minimal notification
+   1. <host-state-dir> = the directory, was_gateway stores system state
+   2. <sms77_api_key> = generated api key from sms77 portal
+   3. <name> = sender name, that should be seen as sender on mobile
+   4. <full_info_group_name> = in your sms77 phonebook, the group name, that should get the full information
+   5. <min_info_group_name> = in your sms77 phonebook, the group name, that should only get minimal notification
 3. Start Docker-compose 
 ```shell
 docker-compose -f "<your_docker_compose_file.yml>" up
