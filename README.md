@@ -3,19 +3,28 @@
  >**_NOTE:_** This Repository contains the basic setup! If you need more configuration, read the documentations of every used service!
 ## Used services
 1. [RabbitMQ](https://hub.docker.com/_/rabbitmq)
-2. [ass_gateway](https://hub.docker.com/repository/docker/uoul/ass-core-gateway/general)
-3. [ass_sms77notifier](https://hub.docker.com/repository/docker/uoul/ass-core-sms77notifier/general)
+2. [ass_core_gateway](https://hub.docker.com/repository/docker/uoul/ass-core-gateway/general)
+3. [ass_core_sms77notifier](https://hub.docker.com/repository/docker/uoul/ass-core-sms77notifier/general)
+4. [ass_core_ui_backend](https://hub.docker.com/r/uoul/ass-core-ui-backend)
+5. [ass_core_ui_frontend](https://hub.docker.com/r/uoul/ass-core-ui-frontend)
 
 ### RabbitMQ
 The RabbitMQ is used as messaging service between all components in ASS. So it's the heart of all ASS parts.
 
-### ass_gateway
-The ass_gateway is responsible for message producing on RabbitMQ. It reads the current messages via TCP socket from the Alu2g device and publish the current alerts plus new alerts on RabbitMQ.
+### ass_core_gateway
+The ass_core_gateway is responsible for message producing on RabbitMQ. It reads the current messages via TCP socket from the Alu2g device and publish the current alerts plus new alerts on RabbitMQ.
 
-### ass_sms77notifier
-The ass_sms77notifier is a service, that consumes the "new alerts" from RabbitMQ and sends sms notifications every new alert. It supports two groups of messaged:
+### ass_core_sms77notifier
+The ass_core_sms77notifier is a service, that consumes the "new alerts" from RabbitMQ and sends sms notifications every new alert. It supports two groups of messaged:
 1. Full information -> that means, that sent sms contains detailed information about the alert
 2. Min information -> only notification about new alerts (without any detail)
+
+### ass_core_ui_backend
+The ass_core_ui_backend provides the information cached from RabbitMq for ass_core_ui_frontend.
+
+### ass_core_ui_frontend
+The ass_core_ui_frontend is a small React application for visualizing current alerts. The ui initialy fetch alert-data from backend and subscribes for updates on backend,
+so that a page reload is not necessary(using server-sent-events).
 
 ## Docker-Compose minimal setup
 ```yaml
@@ -35,9 +44,9 @@ services:
         retries: 5
     networks:
       - ass_net
-  ass_gateway:
+  ass_core_gateway:
     image: uoul/ass-core-gateway:latest
-    container_name: 'ass_gateway'
+    container_name: 'ass_core_gateway'
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -46,9 +55,9 @@ services:
     restart: on-failure
     networks:
       - ass_net
-  ass_sms77notifier:
+  ass_core_sms77notifier:
     image: uoul/ass-core-sms77notifier:latest
-    container_name: 'ass_sms77notifier'
+    container_name: 'ass_core_sms77notifier'
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -61,9 +70,9 @@ services:
     restart: on-failure
     networks:
       - ass_net
-  ass_ui_backend:
+  ass_core_ui_backend:
     image: uoul/ass-core-ui-backend:latest
-    container_name: 'ass_ui_backend'
+    container_name: 'ass_core_ui_backend'
     ports:
       - 3500:3500
     depends_on:
@@ -74,9 +83,9 @@ services:
     restart: on-failure
     networks:
       - ass_net
-  ass_ui_frontend:
+  ass_core_ui_frontend:
     image: uoul/ass-core-ui-frontend
-    container_name: 'ass_ui_frontend'
+    container_name: 'ass_core_ui_frontend'
     ports:
       - 3000:3000
     environment:
@@ -104,4 +113,3 @@ networks:
 ```shell
 docker-compose -f "<your_docker_compose_file.yml>" up
 ```
-1. Finished!
