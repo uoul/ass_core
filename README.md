@@ -61,9 +61,35 @@ services:
     restart: on-failure
     networks:
       - ass_net
+  ass_ui_backend:
+    image: uoul/ass-core-ui-backend:latest
+    container_name: 'ass_ui_backend'
+    ports:
+      - 3500:3500
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    restart: on-failure
+    networks:
+      - ass_net
+  ass_ui_frontend:
+    image: uoul/ass-core-ui-frontend
+    container_name: 'ass_ui_frontend'
+    ports:
+      - 3000:3000
+    environment:
+      - REACT_APP_API_ADDR=<ASS_UI_BACKEND_SERVER_ADDRESS>
+      - REACT_APP_API_PORT=3500
+      - REACT_APP_SRC_ADDR=<NAV_SRC_ADDRESS>
+    restart: on-failure
+    networks:
+      - ass_net
 networks:
   ass_net:
     driver: bridge
+
 ```
 
 ## How to setup?
@@ -72,6 +98,8 @@ networks:
    1. <SMS77_API_KEY> = generated api key from sms77 portal
    2. <SENDER_NAME> = sender name, that should be seen as sender on mobile
    3. <SMS77_CONTACT_GROUP> = in your sms77 phonebook, the group name, that should get corresponding information
+   4. <ASS_UI_BACKEND_SERVER_ADDRESS> = server address (name/ip) of backend server - normaly this should be the docker-host ip address/name
+   5. <NAV_SRC_ADDRESS> = source address for google maps module (ex.: Musterweg 12, 9999 Musterhausen)
 3. Start Docker-compose 
 ```shell
 docker-compose -f "<your_docker_compose_file.yml>" up
